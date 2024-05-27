@@ -14,8 +14,8 @@ class StationStatus(Enum):
 
 class Station:
     status = StationStatus.idle
-    data_period = 100
-    data_mean_time = 5
+    data_period = 100    #V.A
+    data_mean_time = 5   #V.A
     data_queue = deque()
     data_queue_max = 10
 
@@ -56,9 +56,9 @@ class Station:
     def queue_incoming_event(self):
         event_time = 0
         if len(self.data_queue) == 0:
-            event_time = expovariate(self.data_period)
+            event_time = expovariate(1/self.data_period)
         else:
-            event_time = expovariate(self.data_period) + self.data_events[-1]
+            event_time = expovariate(1/self.data_period) + self.data_events[-1]
         
         self.data_events.append(event_time % MAX_CLOCK)
 
@@ -75,7 +75,7 @@ class Station:
         while (self.is_data_outgoing()):
             self.data_events.popleft()
             self.data_queue.append(
-                    ceil(expovariate(self.data_mean_time))
+                    ceil(expovariate(1/self.data_mean_time))
                 )
             # Drops dataframes that exceed data queue length
             while (len(self.data_queue) > self.data_queue_max):
@@ -88,4 +88,4 @@ class Station:
             else:
                 self.update_backoff()
 
-        self.time_counter = self.time_counter + 1 % MAX_CLOCK
+        self.time_counter = (self.time_counter + 1) % MAX_CLOCK

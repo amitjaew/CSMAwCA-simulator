@@ -18,12 +18,12 @@ class FrameType(Enum):
 
 class AccessPoint:
     station_ids = []
-    target_station = -1
+    target_station = -1    
 
     status: AccessPointStatus = AccessPointStatus.idle
-    status_queue = []
-    state_counter = 0
-    state_counter_max = 0
+    status_queue = []  
+    state_counter = 0        #Quantity of time for a determinated state
+    state_counter_max = 0    
 
     T_rts = 1
     T_cts = 1
@@ -40,7 +40,7 @@ class AccessPoint:
     def get_backoff(self):
         return randint(1, self.CW)
 
-    def set_state_counter(self, value):
+    def set_state_counter(self, value):    #reset counter
         self.state_counter_max = value
         self.state_counter = 0
 
@@ -60,13 +60,15 @@ class AccessPoint:
             ]
         elif (f_type == FrameType.rts):
             # Wait SIFS before senting CTS frame
-            self.status = AccessPointStatus.sifs
-            self.set_state_counter(self.T_sifs)
+            self.status = AccessPointStatus.rts
+            self.set_state_counter(self.T_rts)
             
             # Send CTS frame and wait SIFS
             self.status_queue = [
                 AccessPointStatus.sifs,
-                AccessPointStatus.cts
+                AccessPointStatus.cts,
+                AccessPointStatus.sifs,
+
             ]
 
     def next(self):
