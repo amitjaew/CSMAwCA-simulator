@@ -1,26 +1,21 @@
-from enum import Enum
+from . import StationStatus
 from collections import deque
 from random import expovariate
 from math import ceil
 
 MAX_CLOCK = 1000000
 
-class StationStatus(Enum):
-    idle = 'IDLE'
-    waiting = 'WAITING'
-    backoff = 'BACKOFF'
-    data = 'DATA'
-    rts = 'RTS'
-
 class Station:
     status = StationStatus.idle
     data_period = 100    #V.A
     data_mean_time = 5   #V.A
+
     data_queue = deque()
     data_queue_max = 10
 
     data_events = deque()
     event_memory_window = 20
+
     data_ttl = 0
     backoff_counter = 0
     backoff_counter_max = 0
@@ -89,3 +84,4 @@ class Station:
                 self.update_backoff()
 
         self.time_counter = (self.time_counter + 1) % MAX_CLOCK
+        return self.status
