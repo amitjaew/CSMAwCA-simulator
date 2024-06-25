@@ -9,6 +9,7 @@ class StationStatus(Enum):
 
 class AccessPointStatus(Enum):
     idle = 'IDLE'
+    backoff = 'BACKOFF'
     data = 'DATA'
     ack = 'ACK'
     rts = 'RTS'
