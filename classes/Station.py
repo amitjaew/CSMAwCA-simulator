@@ -1,4 +1,4 @@
-from . import StationStatus
+from . import StationStatus, FrameType
 from collections import deque
 from random import expovariate
 from math import ceil
@@ -25,9 +25,9 @@ class Station:
 
     def __init__(
                 self,
-                data_period = 10,
-                data_mean_time = 2,
-                data_queue_max = 10,
+                data_period = 4,
+                data_mean_time = 3,
+                data_queue_max = 4,
                 event_memory_window = 20,
             ):
         self.data_period = data_period
@@ -49,12 +49,21 @@ class Station:
         self.time_counter = 0
 
     def send_data(self):
+        self.success_counter += 1
         self.status = StationStatus.data
         return self.data_queue.popleft()
 
+    def rts_sended(self):
+        self.status = StationStatus.rts
+
     def receive_ack(self):
         self.status = StationStatus.idle
-        self.success_counter += 1
+
+    def toggle_backoff(self):
+        if (self.status != StationStatus.waiting):
+            return
+        self.status = StationStatus.backoff
+        self.backoff_counter = 0
     
     def set_backoff(self, value):
         self.backoff_counter_max = value
@@ -65,15 +74,6 @@ class Station:
     ##########################################
     #          LOCAL STATE HANDLING          #
     ##########################################
-
-    def toggle_backoff(self):
-        if (self.status != StationStatus.waiting):
-            return
-        self.status = StationStatus.backoff
-        self.backoff_counter = 0
-
-    def send_rts(self):
-        self.status = StationStatus.rts
 
     def has_data_pending(self):
         return len(self.data_queue) > 0
@@ -114,10 +114,6 @@ class Station:
 
         if (self.status == StationStatus.idle and self.has_data_pending()):
             self.status = StationStatus.waiting
-
-        elif (self.status == StationStatus.backoff):
-            if (self.backoff_counter == self.backoff_counter_max):
-                self.send_rts()
 
         self.time_counter = (self.time_counter + 1) % MAX_CLOCK
 
