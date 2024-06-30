@@ -25,9 +25,9 @@ class Station:
 
     def __init__(
                 self,
-                data_period = 4,
-                data_mean_time = 3,
-                data_queue_max = 4,
+                data_period = 200,
+                data_mean_time = 5,
+                data_queue_max = 10,
                 event_memory_window = 20,
             ):
         self.data_period = data_period
