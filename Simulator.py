@@ -2,6 +2,8 @@ from classes.AccessPoint import *
 from classes.Station import *
 from classes import FrameType, StationStatus, AccessPointStatus
 from time import sleep, time
+import pickle
+from datetime import datetime
 
 class Simulator():
     def __init__(
@@ -117,28 +119,38 @@ class Simulator():
         global_success_rate = global_success / (global_success + global_canceled)
         print(f'global success rate: {100 * global_success_rate}%')
         return [global_success_rate, station_success_rates]
+    
+def store_pickle(info, directory=''):
+
+    ahora = datetime.now()
+    
+    nombre_archivo = ahora.strftime('%Y-%m-%d_%H-%M-%S') + '.pkl'
+    if directory:
+        nombre_archivo = f"{directory}/{nombre_archivo}"
+    with open(nombre_archivo, 'wb') as archivo:
+        pickle.dump(info, archivo)
+    
+    return nombre_archivo
 
 
 if (__name__ == '__main__'):
     ap = AccessPoint()
     st = [
-        Station(),
-        Station(),
-        Station(),
-        Station(),
-        Station(),
-        Station(),
-        Station(),
-        Station(),
-        Station(),
+        Station(),#1
+
     ]
     sim = Simulator(ap, st)
 
     tic = time()
     sim.simulate(
-        N=10000000,
+        N=100_000_000,
         #verbose=True
     )
     toc = time()
     print('elapsed', toc - tic)
-    sim.dump_results()
+    res = sim.dump_results()
+    
+    store_pickle(res, 'Logs')
+
+    
+
